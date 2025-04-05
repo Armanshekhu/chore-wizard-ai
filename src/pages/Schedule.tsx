@@ -4,7 +4,7 @@ import { getHousehold, completeChore } from "@/services/data";
 import { Household } from "@/types";
 import ScheduleCalendar from "@/components/schedule/ScheduleCalendar";
 import { useToast } from "@/hooks/use-toast";
-import { MagicWandIcon } from "lucide-react";
+import { Wand2Icon } from "lucide-react";
 
 const Schedule = () => {
   const [household, setHousehold] = useState<Household | null>(null);
@@ -55,7 +55,7 @@ const Schedule = () => {
     return (
       <div className="flex items-center justify-center h-[60vh]">
         <div className="animate-spin-slow">
-          <MagicWandIcon className="h-12 w-12 text-primary/70" />
+          <Wand2Icon className="h-12 w-12 text-primary/70" />
         </div>
         <span className="ml-3 text-xl font-medium">Loading...</span>
       </div>

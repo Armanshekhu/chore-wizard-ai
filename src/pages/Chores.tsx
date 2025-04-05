@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { getHousehold, addChore } from "@/services/data";
 import { Household, Chore, ChoreCategory } from "@/types";
@@ -26,7 +25,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { MagicWandIcon, PlusIcon } from "lucide-react";
+import { Wand2Icon, PlusIcon } from "lucide-react";
 
 const frequencies = [
   { value: "daily", label: "Daily" },
@@ -56,7 +55,6 @@ const Chores: React.FC = () => {
   const [isAddDialogOpen, setIsAddDialogOpen] = useState<boolean>(false);
   const { toast } = useToast();
 
-  // Form state for new chore
   const [newChore, setNewChore] = useState<Partial<Chore>>({
     name: "",
     description: "",
@@ -111,7 +109,6 @@ const Chores: React.FC = () => {
   const handleAddChore = () => {
     if (!household) return;
 
-    // Validate input
     if (!newChore.name || !newChore.description) {
       toast({
         variant: "destructive",
@@ -122,7 +119,6 @@ const Chores: React.FC = () => {
     }
 
     try {
-      // Create new chore with a unique ID
       const choreToAdd: Chore = {
         id: `chore-${Date.now()}`,
         name: newChore.name,
@@ -136,7 +132,6 @@ const Chores: React.FC = () => {
       const updatedHousehold = addChore(choreToAdd);
       setHousehold(updatedHousehold);
       
-      // Reset form and close dialog
       setNewChore({
         name: "",
         description: "",
@@ -165,7 +160,7 @@ const Chores: React.FC = () => {
     return (
       <div className="flex items-center justify-center h-[60vh]">
         <div className="animate-spin-slow">
-          <MagicWandIcon className="h-12 w-12 text-primary/70" />
+          <Wand2Icon className="h-12 w-12 text-primary/70" />
         </div>
         <span className="ml-3 text-xl font-medium">Loading...</span>
       </div>

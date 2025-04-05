@@ -1,7 +1,7 @@
 
 import React from "react";
 import { Link, Outlet } from "react-router-dom";
-import { MagicWandIcon, HomeIcon, CalendarIcon, CheckCheckIcon, UserIcon, SettingsIcon } from "lucide-react";
+import { Wand2Icon, HomeIcon, CalendarIcon, CheckCheckIcon, UserIcon, SettingsIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 type NavItem = {
@@ -28,7 +28,7 @@ const MainLayout: React.FC = () => {
         <div className="container mx-auto px-4 py-3 flex items-center justify-between">
           <Link to="/" className="flex items-center space-x-2">
             <div className="bg-primary rounded-md p-1.5">
-              <MagicWandIcon className="h-5 w-5 text-white" />
+              <Wand2Icon className="h-5 w-5 text-white" />
             </div>
             <span className="text-xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
               ChoreWizard

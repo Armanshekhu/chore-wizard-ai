@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import { getHousehold, addUser } from "@/services/data";
 import { Household, User } from "@/types";
@@ -17,7 +18,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Checkbox } from "@/components/ui/checkbox";
-import { MagicWandIcon, PlusIcon, Trash2 } from "lucide-react";
+import { Wand2Icon, PlusIcon, Trash2 } from "lucide-react";
 
 const Members = () => {
   const [household, setHousehold] = useState<Household | null>(null);
@@ -154,7 +155,7 @@ const Members = () => {
     return (
       <div className="flex items-center justify-center h-[60vh]">
         <div className="animate-spin-slow">
-          <MagicWandIcon className="h-12 w-12 text-primary/70" />
+          <Wand2Icon className="h-12 w-12 text-primary/70" />
         </div>
         <span className="ml-3 text-xl font-medium">Loading...</span>
       </div>

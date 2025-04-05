@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { getHousehold, completeChore, distributeChores } from "@/services/data";
 import { Household, AssignedChore, Chore, User } from "@/types";
@@ -6,7 +5,7 @@ import ChoreCard from "@/components/chores/ChoreCard";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { Card, CardContent } from "@/components/ui/card";
-import { MagicWandIcon, RotateCw, CalendarIcon, UserIcon, CheckCircle } from "lucide-react";
+import { Wand2Icon, RotateCw, CalendarIcon, UserIcon, CheckCircle } from "lucide-react";
 
 const Dashboard = () => {
   const [household, setHousehold] = useState<Household | null>(null);
@@ -14,7 +13,6 @@ const Dashboard = () => {
   const { toast } = useToast();
 
   useEffect(() => {
-    // Load household data
     const loadData = () => {
       try {
         const data = getHousehold();
@@ -74,7 +72,7 @@ const Dashboard = () => {
     return (
       <div className="flex items-center justify-center h-[60vh]">
         <div className="animate-spin-slow">
-          <MagicWandIcon className="h-12 w-12 text-primary/70" />
+          <Wand2Icon className="h-12 w-12 text-primary/70" />
         </div>
         <span className="ml-3 text-xl font-medium">Loading...</span>
       </div>
@@ -119,7 +117,7 @@ const Dashboard = () => {
           </p>
         </div>
         <Button onClick={handleDistributeChores} className="md:w-auto w-full">
-          <MagicWandIcon className="mr-2 h-4 w-4" />
+          <Wand2Icon className="mr-2 h-4 w-4" />
           Redistribute Chores
         </Button>
       </div>
@@ -186,7 +184,7 @@ const Dashboard = () => {
             <CardContent className="p-8 text-center">
               <p className="text-muted-foreground">No chores scheduled for today.</p>
               <Button variant="outline" className="mt-4" onClick={handleDistributeChores}>
-                <MagicWandIcon className="mr-2 h-4 w-4" />
+                <Wand2Icon className="mr-2 h-4 w-4" />
                 Generate Chores
               </Button>
             </CardContent>
