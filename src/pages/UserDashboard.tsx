@@ -8,6 +8,7 @@ import { Link } from "react-router-dom";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useToast } from "@/hooks/use-toast";
 import { format } from "date-fns";
+import WeeklyScheduleTable from "@/components/schedule/WeeklyScheduleTable";
 
 const UserDashboard = () => {
   const { user, signOut } = useAuth();
@@ -144,6 +145,10 @@ const UserDashboard = () => {
             )}
           </div>
         )}
+
+        <div className="mt-8">
+          <WeeklyScheduleTable />
+        </div>
       </main>
     </div>
   );

@@ -9,6 +9,8 @@ import {
 } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
+import { useQueryClient } from "@tanstack/react-query";
+import WeeklyScheduleTable from "@/components/schedule/WeeklyScheduleTable";
 import {
   AlertDialog, AlertDialogAction, AlertDialogCancel,
   AlertDialogContent, AlertDialogDescription, AlertDialogFooter,
@@ -139,6 +141,10 @@ const AdminDashboard = () => {
               </Link>
             </CardContent>
           </Card>
+        </div>
+
+        <div className="mt-8">
+          <WeeklyScheduleTable showAllUsers />
         </div>
       </main>
 
