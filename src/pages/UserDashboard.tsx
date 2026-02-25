@@ -1,11 +1,52 @@
 import { useAuth } from "@/hooks/useAuth";
+import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { UserIcon, LogOutIcon, CheckCheckIcon, CalendarIcon } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import { UserIcon, LogOutIcon, CheckCheckIcon, CalendarIcon, CheckIcon, Loader2Icon } from "lucide-react";
 import { Link } from "react-router-dom";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useToast } from "@/hooks/use-toast";
+import { format } from "date-fns";
 
 const UserDashboard = () => {
   const { user, signOut } = useAuth();
+  const { toast } = useToast();
+  const queryClient = useQueryClient();
+
+  const { data: assignments, isLoading } = useQuery({
+    queryKey: ["my-assignments", user?.id],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("assigned_chores")
+        .select("*, chores(*)")
+        .eq("user_id", user!.id)
+        .order("due_date", { ascending: true });
+      if (error) throw error;
+      return data;
+    },
+    enabled: !!user,
+  });
+
+  const completeMutation = useMutation({
+    mutationFn: async (assignmentId: string) => {
+      const { error } = await supabase
+        .from("assigned_chores")
+        .update({ completed: true, completed_at: new Date().toISOString() })
+        .eq("id", assignmentId);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["my-assignments"] });
+      toast({ title: "Chore completed! 🎉" });
+    },
+    onError: (err: any) => {
+      toast({ title: "Error", description: err.message, variant: "destructive" });
+    },
+  });
+
+  const pending = assignments?.filter((a) => !a.completed) || [];
+  const completed = assignments?.filter((a) => a.completed) || [];
 
   return (
     <div className="min-h-screen bg-muted/30">
@@ -26,32 +67,83 @@ const UserDashboard = () => {
 
       <main className="container mx-auto px-4 py-8">
         <h1 className="text-3xl font-bold mb-6">Welcome!</h1>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <Card>
-            <CardHeader className="flex flex-row items-center gap-2">
-              <CheckCheckIcon className="h-5 w-5 text-secondary" />
-              <CardTitle className="text-lg">My Chores</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p className="text-sm text-muted-foreground mb-3">View and complete your assigned chores.</p>
-              <Link to="/chores">
-                <Button variant="outline" size="sm">Go to Chores</Button>
-              </Link>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardHeader className="flex flex-row items-center gap-2">
-              <CalendarIcon className="h-5 w-5 text-accent" />
-              <CardTitle className="text-lg">My Schedule</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p className="text-sm text-muted-foreground mb-3">View your upcoming chore schedule.</p>
-              <Link to="/schedule">
-                <Button variant="outline" size="sm">Go to Schedule</Button>
-              </Link>
-            </CardContent>
-          </Card>
-        </div>
+
+        {isLoading ? (
+          <div className="flex justify-center py-12">
+            <Loader2Icon className="h-8 w-8 animate-spin text-primary" />
+          </div>
+        ) : (
+          <div className="space-y-8">
+            {/* Pending chores */}
+            <section>
+              <h2 className="text-xl font-semibold mb-4 flex items-center gap-2">
+                <CalendarIcon className="h-5 w-5 text-primary" />
+                Upcoming Chores ({pending.length})
+              </h2>
+              {pending.length === 0 ? (
+                <Card>
+                  <CardContent className="py-6 text-center text-muted-foreground">
+                    No chores assigned yet. Check back later!
+                  </CardContent>
+                </Card>
+              ) : (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {pending.map((a) => (
+                    <Card key={a.id}>
+                      <CardHeader className="pb-2">
+                        <div className="flex items-center justify-between">
+                          <CardTitle className="text-base">{(a as any).chores?.name}</CardTitle>
+                          <Badge variant="outline">Due {format(new Date(a.due_date), "EEE, MMM d")}</Badge>
+                        </div>
+                      </CardHeader>
+                      <CardContent>
+                        <p className="text-sm text-muted-foreground mb-3">
+                          {(a as any).chores?.description}
+                        </p>
+                        <div className="flex items-center justify-between">
+                          <span className="text-xs text-muted-foreground">
+                            ~{(a as any).chores?.estimated_minutes} min
+                          </span>
+                          <Button
+                            size="sm"
+                            onClick={() => completeMutation.mutate(a.id)}
+                            disabled={completeMutation.isPending}
+                          >
+                            <CheckIcon className="h-4 w-4 mr-1" /> Mark Done
+                          </Button>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  ))}
+                </div>
+              )}
+            </section>
+
+            {/* Completed chores */}
+            {completed.length > 0 && (
+              <section>
+                <h2 className="text-xl font-semibold mb-4 flex items-center gap-2">
+                  <CheckCheckIcon className="h-5 w-5 text-secondary" />
+                  Completed ({completed.length})
+                </h2>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {completed.map((a) => (
+                    <Card key={a.id} className="opacity-70">
+                      <CardHeader className="pb-2">
+                        <div className="flex items-center justify-between">
+                          <CardTitle className="text-base line-through">
+                            {(a as any).chores?.name}
+                          </CardTitle>
+                          <Badge variant="secondary">Done</Badge>
+                        </div>
+                      </CardHeader>
+                    </Card>
+                  ))}
+                </div>
+              </section>
+            )}
+          </div>
+        )}
       </main>
     </div>
   );

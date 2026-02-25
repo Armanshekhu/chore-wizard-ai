@@ -1,1 +1,4 @@
 project_id = "kgtpxayezeyszoswqclk"
+
+[functions.distribute-chores]
+verify_jwt = false
