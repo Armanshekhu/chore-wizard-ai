@@ -14,6 +14,83 @@ export type Database = {
   }
   public: {
     Tables: {
+      assigned_chores: {
+        Row: {
+          chore_id: string
+          completed: boolean
+          completed_at: string | null
+          created_at: string
+          due_date: string
+          id: string
+          user_id: string
+          week_start: string
+        }
+        Insert: {
+          chore_id: string
+          completed?: boolean
+          completed_at?: string | null
+          created_at?: string
+          due_date: string
+          id?: string
+          user_id: string
+          week_start: string
+        }
+        Update: {
+          chore_id?: string
+          completed?: boolean
+          completed_at?: string | null
+          created_at?: string
+          due_date?: string
+          id?: string
+          user_id?: string
+          week_start?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "assigned_chores_chore_id_fkey"
+            columns: ["chore_id"]
+            isOneToOne: false
+            referencedRelation: "chores"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      chores: {
+        Row: {
+          category: string
+          created_at: string
+          created_by: string | null
+          description: string | null
+          difficulty: number
+          estimated_minutes: number
+          frequency: string
+          id: string
+          name: string
+        }
+        Insert: {
+          category?: string
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          difficulty?: number
+          estimated_minutes?: number
+          frequency?: string
+          id?: string
+          name: string
+        }
+        Update: {
+          category?: string
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          difficulty?: number
+          estimated_minutes?: number
+          frequency?: string
+          id?: string
+          name?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           created_at: string

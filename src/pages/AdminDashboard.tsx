@@ -1,11 +1,71 @@
+import { useState } from "react";
 import { useAuth } from "@/hooks/useAuth";
+import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { ShieldIcon, LogOutIcon, UsersIcon, CheckCheckIcon, BarChart3Icon } from "lucide-react";
+import {
+  ShieldIcon, LogOutIcon, UsersIcon, CheckCheckIcon,
+  BarChart3Icon, WandSparklesIcon, Loader2Icon,
+} from "lucide-react";
 import { Link } from "react-router-dom";
+import { useToast } from "@/hooks/use-toast";
+import {
+  AlertDialog, AlertDialogAction, AlertDialogCancel,
+  AlertDialogContent, AlertDialogDescription, AlertDialogFooter,
+  AlertDialogHeader, AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 
 const AdminDashboard = () => {
-  const { user, signOut } = useAuth();
+  const { user, session, signOut } = useAuth();
+  const { toast } = useToast();
+  const [distributing, setDistributing] = useState(false);
+  const [showConfirm, setShowConfirm] = useState(false);
+
+  const distribute = async (force = false) => {
+    setDistributing(true);
+    try {
+      const resp = await fetch(
+        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/distribute-chores`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${session?.access_token}`,
+          },
+          body: JSON.stringify({ force }),
+        }
+      );
+
+      const data = await resp.json();
+
+      if (resp.status === 409) {
+        setShowConfirm(true);
+        return;
+      }
+
+      if (!resp.ok) {
+        throw new Error(data.error || "Distribution failed");
+      }
+
+      toast({
+        title: "Tasks Distributed!",
+        description: data.message,
+      });
+    } catch (err: any) {
+      toast({
+        title: "Distribution Failed",
+        description: err.message,
+        variant: "destructive",
+      });
+    } finally {
+      setDistributing(false);
+    }
+  };
+
+  const handleForceDistribute = async () => {
+    setShowConfirm(false);
+    await distribute(true);
+  };
 
   return (
     <div className="min-h-screen bg-muted/30">
@@ -25,7 +85,23 @@ const AdminDashboard = () => {
       </header>
 
       <main className="container mx-auto px-4 py-8">
-        <h1 className="text-3xl font-bold mb-6">Welcome, Admin!</h1>
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-6 gap-4">
+          <h1 className="text-3xl font-bold">Welcome, Admin!</h1>
+          <Button
+            size="lg"
+            onClick={() => distribute(false)}
+            disabled={distributing}
+            className="gap-2"
+          >
+            {distributing ? (
+              <Loader2Icon className="h-5 w-5 animate-spin" />
+            ) : (
+              <WandSparklesIcon className="h-5 w-5" />
+            )}
+            {distributing ? "Distributing..." : "Distribute Tasks Using AI"}
+          </Button>
+        </div>
+
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           <Card>
             <CardHeader className="flex flex-row items-center gap-2">
@@ -65,6 +141,23 @@ const AdminDashboard = () => {
           </Card>
         </div>
       </main>
+
+      <AlertDialog open={showConfirm} onOpenChange={setShowConfirm}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Tasks Already Distributed</AlertDialogTitle>
+            <AlertDialogDescription>
+              Tasks have already been distributed for this week. Redistributing will remove incomplete assignments and create new ones. Completed tasks will be kept.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={handleForceDistribute}>
+              Redistribute
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 };
